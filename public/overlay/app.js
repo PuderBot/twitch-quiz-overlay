@@ -37,7 +37,8 @@ const elements = {
   timerValue: document.getElementById('timerValue'),
   timerProgress: document.querySelector('.timer__ring-progress'),
   statusToast: document.getElementById('statusToast'),
-  connectionIndicator: document.getElementById('connectionIndicator')
+  connectionIndicator: document.getElementById('connectionIndicator'),
+  overlayBackground: document.querySelector('.overlay__background')
 };
 
 // Timer ring circumference for stroke-dashoffset

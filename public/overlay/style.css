@@ -36,7 +36,38 @@
   --buzzer-glow-spread: 0 0 32px 8px;
   --transition-fast: 120ms ease-out;
   --transition-med: 250ms ease-out;
-}
+
+  /* Overlay-Design Tokens */
+  --overlay-bg: transparent;
+  --overlay-bg-alpha: 0;
+  --overlay-bg-image: '';
+  --overlay-bg-fit: cover;
+  --overlay-gradient-enabled: false;
+  --overlay-gradient-start: #9146FF;
+  --overlay-gradient-end: #00FF88;
+  --overlay-gradient-angle: 135deg;
+  --overlay-max-width: 1920px;
+  --overlay-padding: 16px;
+  --frame-left-color: #00FF88;
+  --frame-left-width: 3px;
+  --frame-right-color: #FF4466;
+  --frame-right-width: 3px;
+  --frame-radius: 16px;
+  --frame-gap: clamp(16px, 3vw, 32px);
+
+  /* Buzzer Tokens */
+  --buzzer-volume: 0.7;
+  --buzzer-sfx-volume: 0.5;
+  --buzzer-idle: #2A2A30;
+  --buzzer-hover: #3A3A44;
+  --buzzer-active-left: #00FF88;
+  --buzzer-active-right: #FF4466;
+  --buzzer-lockout: #FFAA00;
+  --buzzer-winner-glow: #00FF88;
+  --buzzer-text-color: #FFFFFF;
+  --buzzer-timer-color: #FFFFFF;
+  --buzzer-volume: 0.7;
+  --buzzer-sfx-volume: 0.5;
 
 /* Light Mode Override (optional, but default stays Dark for Twitch) */
 @media (prefers-color-scheme: light) {
@@ -401,6 +432,44 @@ body {
 
 .connection-indicator--disconnected .connection-indicator__dot {
   background: var(--buzzer-active-right);
+}
+
+/* ==========================================================================
+   Overlay Background & Gradient
+   ========================================================================== */
+.overlay__background {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: var(--overlay-bg);
+  background-image: var(--overlay-bg-image);
+  background-size: var(--overlay-bg-fit);
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: var(--overlay-bg-alpha);
+  transition: opacity var(--transition-med);
+}
+
+.overlay__background::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(var(--overlay-gradient-angle), var(--overlay-gradient-start), var(--overlay-gradient-end));
+  opacity: var(--overlay-gradient-enabled);
+  pointer-events: none;
+  transition: opacity var(--transition-med);
+}
+
+/* Frame Border Colors */
+.frame--left {
+  border-color: var(--frame-left-color);
+  border-width: var(--frame-left-width);
+}
+.frame--right {
+  border-color: var(--frame-right-color);
+  border-width: var(--frame-right-width);
 }
 
 /* ==========================================================================

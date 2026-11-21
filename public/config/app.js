@@ -65,6 +65,29 @@ function cacheElements() {
   els.panels = document.querySelectorAll('.panel');
   els.resetRoundBtn = document.getElementById('resetRoundBtn');
 
+  // Overlay-Design sub-tabs
+  els.overlayDesignTabBtns = document.querySelectorAll('#panel-overlay-design .design-tab-btn');
+  els.overlayDesignPanels = document.querySelectorAll('#panel-overlay-design .design-panel');
+
+  // Buzzer sub-tabs
+  els.buzzerTabBtns = document.querySelectorAll('#panel-buzzer .design-tab-btn');
+  els.buzzerPanels = document.querySelectorAll('#panel-buzzer .design-panel');
+
+  // Overlay-Design token inputs
+  els.overlayDesignColorInputs = document.querySelectorAll('#panel-overlay-design .token-color__input');
+  els.overlayDesignSelectInputs = document.querySelectorAll('#panel-overlay-design .token-select__input');
+  els.overlayDesignSliderInputs = document.querySelectorAll('#panel-overlay-design .token-slider__input');
+  els.overlayDesignSliderValues = document.querySelectorAll('#panel-overlay-design .token-slider__value');
+
+  // Buzzer token inputs
+  els.buzzerColorInputs = document.querySelectorAll('#panel-buzzer .token-color__input');
+  els.buzzerSelectInputs = document.querySelectorAll('#panel-buzzer .token-select__input');
+  els.buzzerSliderInputs = document.querySelectorAll('#panel-buzzer .token-slider__input');
+  els.buzzerSliderValues = document.querySelectorAll('#panel-buzzer .token-slider__value');
+
+  // Buzzer test buttons
+  els.buzzerTestBtns = document.querySelectorAll('#panel-buzzer .buzzer-test-btn');
+
   // Questions
   els.questionsList = document.getElementById('questionsList');
   els.emptyQuestions = document.getElementById('emptyQuestions');
@@ -92,9 +115,17 @@ function cacheElements() {
   els.pointsBtns = document.querySelectorAll('.points-btn');
   els.buzzerTestBtns = document.querySelectorAll('.buzzer-test-btn');
 
-  // Design
-  els.designTabBtns = document.querySelectorAll('.design-tab-btn');
-  els.designPanels = document.querySelectorAll('.design-panel');
+  // Design (Haupt-Panel: Farben, Typografie, Layout, Animation)
+  els.designTabBtns = document.querySelectorAll('#panel-design .design-tab-btn');
+  els.designPanels = document.querySelectorAll('#panel-design .design-panel');
+
+  // Overlay-Design Subtabs
+  els.overlayDesignTabBtns = document.querySelectorAll('#panel-overlay-design .design-tab-btn');
+  els.overlayDesignPanels = document.querySelectorAll('#panel-overlay-design .design-panel');
+
+  // Buzzer Subtabs
+  els.buzzerTabBtns = document.querySelectorAll('#panel-buzzer .design-tab-btn');
+  els.buzzerPanels = document.querySelectorAll('#panel-buzzer .design-panel');
   els.tokenColorInputs = document.querySelectorAll('.token-color__input');
   els.tokenSelectInputs = document.querySelectorAll('.token-select__input');
   els.tokenSliderInputs = document.querySelectorAll('.token-slider__input');
@@ -155,9 +186,26 @@ function bindEvents() {
     });
   });
 
-  // Design Tabs
+  // Buzzer test buttons in Buzzer panel
+  els.buzzerTestBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      sendCommand('BUZZ', { side: btn.dataset.side });
+    });
+  });
+
+  // Design Tabs (General)
   els.designTabBtns.forEach(btn => {
     btn.addEventListener('click', () => switchDesignTab(btn.dataset.designTab));
+  });
+
+  // Overlay-Design sub-tabs
+  els.overlayDesignTabBtns.forEach(btn => {
+    btn.addEventListener('click', () => switchOverlayDesignTab(btn.dataset.designTab));
+  });
+
+  // Buzzer sub-tabs
+  els.buzzerTabBtns.forEach(btn => {
+    btn.addEventListener('click', () => switchBuzzerTab(btn.dataset.designTab));
   });
 
   // Design Token Inputs
@@ -167,6 +215,31 @@ function bindEvents() {
 
   els.tokenSelectInputs.forEach(select => {
     select.addEventListener('change', () => sendThemeUpdate({ [select.dataset.token]: select.value }));
+  });
+
+  // Overlay-Design color inputs
+  els.overlayDesignColorInputs.forEach(input => {
+    input.addEventListener('change', () => sendThemeUpdate({ [input.dataset.token]: input.value }));
+  });
+
+  // Overlay-Design select inputs
+  els.overlayDesignSelectInputs.forEach(select => {
+    select.addEventListener('change', () => sendThemeUpdate({ [select.dataset.token]: select.value }));
+  });
+
+  // Buzzer color inputs
+  els.buzzerColorInputs.forEach(input => {
+    input.addEventListener('change', () => sendThemeUpdate({ [input.dataset.token]: input.value }));
+  });
+
+  // Buzzer select inputs
+  els.buzzerSelectInputs.forEach(select => {
+    select.addEventListener('change', () => sendThemeUpdate({ [select.dataset.token]: select.value }));
+  });
+
+  // Buzzer checkbox inputs
+  document.querySelectorAll('#panel-buzzer input[type="checkbox"]').forEach(input => {
+    input.addEventListener('change', () => sendThemeUpdate({ [input.dataset.token]: input.checked }));
   });
 
   els.tokenSliderInputs.forEach((slider, index) => {
@@ -211,6 +284,70 @@ function bindEvents() {
         };
         value = clampMap[token] || value;
       }
+      sendThemeUpdate({ [token]: value });
+    });
+  });
+
+  // Overlay-Design slider inputs
+  els.overlayDesignSliderInputs.forEach((slider, index) => {
+    const token = slider.dataset.token;
+    const valueEl = els.overlayDesignSliderValues[index];
+    slider.addEventListener('input', () => {
+      let displayValue = slider.value;
+      if (token.includes('alpha')) {
+        displayValue = parseFloat(displayValue).toFixed(2);
+      } else if (token.includes('angle')) {
+        displayValue = `${displayValue}deg`;
+      } else if (token.includes('width')) {
+        displayValue = `${displayValue}px`;
+      } else if (token.includes('padding')) {
+        displayValue = `${displayValue}px`;
+      } else if (token.includes('radius')) {
+        displayValue = `${displayValue}px`;
+      } else if (token.includes('gap')) {
+        displayValue = `${displayValue}px`;
+      } else if (token.includes('width')) {
+        displayValue = `${displayValue}px`;
+      } else if (token.includes('fit')) {
+        displayValue = slider.value;
+      } else if (token.includes('enabled')) {
+        displayValue = slider.checked ? 'true' : 'false';
+      }
+      const valueEl = els.overlayDesignSliderValues[index];
+      if (valueEl) valueEl.textContent = displayValue;
+    });
+    slider.addEventListener('change', () => {
+      let value = slider.value;
+      if (token.includes('alpha')) value = parseFloat(value);
+      else if (token.includes('angle')) value = `${value}deg`;
+      else if (token.includes('width') || token.includes('padding') || token.includes('radius') || token.includes('gap')) value = `${value}px`;
+      else if (token.includes('fit')) value = slider.value;
+      else if (token.includes('enabled')) value = slider.checked;
+      sendThemeUpdate({ [token]: value });
+    });
+  });
+
+  // Buzzer slider inputs
+  els.buzzerSliderInputs.forEach((slider, index) => {
+    const token = slider.dataset.token;
+    const valueEl = els.buzzerSliderValues[index];
+    slider.addEventListener('input', () => {
+      let displayValue = slider.value;
+      if (token.includes('volume')) {
+        displayValue = parseFloat(displayValue).toFixed(2);
+      } else if (token.includes('duration') || token.includes('cooldown') || token.includes('debounce')) {
+        displayValue = `${displayValue}ms`;
+      } else if (token.includes('gpio')) {
+        displayValue = `${displayValue}`;
+      }
+      const valueEl = els.buzzerSliderValues[index];
+      if (valueEl) valueEl.textContent = displayValue;
+    });
+    slider.addEventListener('change', () => {
+      let value = slider.value;
+      if (token.includes('volume')) value = parseFloat(value);
+      else if (token.includes('duration') || token.includes('cooldown') || token.includes('debounce')) value = `${value}ms`;
+      else if (token.includes('gpio') || token.includes('debounce')) value = `${value}`;
       sendThemeUpdate({ [token]: value });
     });
   });
@@ -428,6 +565,8 @@ function applyState(state) {
 
   // Update design tokens in UI
   syncDesignInputs(state.theme);
+  syncOverlayDesignInputs(state.theme);
+  syncBuzzerInputs(state.theme);
 
   // Update buzzer lockout duration slider if exists
   // (handled in design panel)
@@ -462,6 +601,15 @@ function renderQuestions(questions, currentQuestionId) {
         <button type="button" class="question-item__btn question-item__btn--primary" data-action="set" aria-label="Als aktuelle Frage setzen" title="Als aktuelle Frage setzen">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
         </button>
+        <button type="button" class="question-item__btn timer-btn" data-action="start-timer" aria-label="Timer starten" title="Timer starten">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
+        <button type="button" class="question-item__btn timer-btn" data-action="pause-timer" aria-label="Timer pausieren" title="Timer pausieren" style="display:none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+        </button>
+        <button type="button" class="question-item__btn timer-btn" data-action="reset-timer" aria-label="Timer zurücksetzen" title="Timer zurücksetzen">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        </button>
         <button type="button" class="question-item__btn" data-action="edit" aria-label="Bearbeiten" title="Bearbeiten">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         </button>
@@ -470,6 +618,30 @@ function renderQuestions(questions, currentQuestionId) {
         </button>
       </div>
     `;
+
+    // Timer-Buttons Event-Listener
+    item.querySelector('[data-action="start-timer"]').addEventListener('click', () => {
+      sendCommand('SET_TIMER', { duration: question.timer || 30, action: 'start' });
+      item.querySelector('[data-action="start-timer"]').style.display = 'none';
+      item.querySelector('[data-action="pause-timer"]').style.display = 'inline-flex';
+    });
+
+    item.querySelector('[data-action="pause-timer"]').addEventListener('click', () => {
+      sendCommand('SET_TIMER', { action: 'pause' });
+      item.querySelector('[data-action="start-timer"]').style.display = 'inline-flex';
+      item.querySelector('[data-action="pause-timer"]').style.display = 'none';
+    });
+
+    item.querySelector('[data-action="reset-timer"]').addEventListener('click', () => {
+      sendCommand('SET_TIMER', { action: 'reset' });
+      item.querySelector('[data-action="start-timer"]').style.display = 'inline-flex';
+      item.querySelector('[data-action="pause-timer"]').style.display = 'none';
+    });
+
+    // Timer-Status beim Rendern setzen
+    const timerActive = question.timerState?.active || false;
+    item.querySelector('[data-action="start-timer"]').style.display = timerActive ? 'none' : 'inline-flex';
+    item.querySelector('[data-action="pause-timer"]').style.display = timerActive ? 'inline-flex' : 'none';
 
     // Drag and drop
     item.addEventListener('dragstart', handleDragStart);
@@ -608,24 +780,48 @@ function switchDesignTab(tabName) {
   });
 }
 
+function switchOverlayDesignTab(tabName) {
+  els.overlayDesignTabBtns.forEach(btn => {
+    btn.classList.toggle('design-tab-btn--active', btn.dataset.designTab === tabName);
+    btn.setAttribute('aria-selected', btn.dataset.designTab === tabName);
+  });
+  els.overlayDesignPanels.forEach(panel => {
+    panel.hidden = panel.id !== `design-${tabName}`;
+    if (!panel.hidden) panel.setAttribute('aria-hidden', 'false');
+    else panel.setAttribute('aria-hidden', 'true');
+  });
+}
+
+function switchBuzzerTab(tabName) {
+  els.buzzerTabBtns.forEach(btn => {
+    btn.classList.toggle('design-tab-btn--active', btn.dataset.designTab === tabName);
+    btn.setAttribute('aria-selected', btn.dataset.designTab === tabName);
+  });
+  els.buzzerPanels.forEach(panel => {
+    panel.hidden = panel.id !== `design-${tabName}`;
+    if (!panel.hidden) panel.setAttribute('aria-hidden', 'false');
+    else panel.setAttribute('aria-hidden', 'true');
+  });
+}
+
 function syncDesignInputs(theme) {
   if (!theme) return;
 
-  // Color inputs
+  // Color inputs (General Design)
   els.tokenColorInputs.forEach(input => {
     if (theme[input.dataset.token]) {
       input.value = theme[input.dataset.token];
     }
   });
 
-  // Select inputs
+  // Select inputs (General Design)
   els.tokenSelectInputs.forEach(select => {
     if (theme[select.dataset.token]) {
       select.value = theme[select.dataset.token];
     }
   });
 
-  // Slider inputs - parse values
+  // Slider inputs (General Design) - parse values
   els.tokenSliderInputs.forEach((slider, index) => {
     const token = slider.dataset.token;
     const valueEl = els.tokenSliderValues[index];
@@ -659,6 +855,92 @@ function syncDesignInputs(theme) {
         displayValue = clampMap[token] || value;
       }
       valueEl.textContent = displayValue;
+    }
+  });
+}
+
+function syncOverlayDesignInputs(theme) {
+  if (!theme) return;
+
+  // Overlay-Design color inputs
+  els.overlayDesignColorInputs.forEach(input => {
+    if (theme[input.dataset.token]) {
+      input.value = theme[input.dataset.token];
+    }
+  });
+
+  // Overlay-Design select inputs
+  els.overlayDesignSelectInputs.forEach(select => {
+    if (theme[select.dataset.token]) {
+      select.value = theme[select.dataset.token];
+    }
+  });
+
+  // Overlay-Design slider inputs
+  els.overlayDesignSliderInputs.forEach((slider, index) => {
+    const token = slider.dataset.token;
+    const valueEl = els.overlayDesignSliderValues[index];
+    if (theme[token]) {
+      let value = theme[token];
+      // Parse different formats
+      if (token.includes('alpha')) {
+        value = parseFloat(value) || 0;
+      } else if (token.includes('angle')) {
+        value = parseInt(value) || 135;
+      } else if (token.includes('width') || token.includes('padding') || token.includes('radius') || token.includes('gap')) {
+        value = parseInt(value) || 16;
+      }
+      slider.value = value;
+      // Update display
+      let displayValue = value;
+      if (token.includes('alpha')) displayValue = parseFloat(value).toFixed(2);
+      else if (token.includes('angle')) displayValue = `${value}deg`;
+      else if (token.includes('width') || token.includes('padding') || token.includes('radius') || token.includes('gap')) displayValue = `${value}px`;
+      const valueEl = els.overlayDesignSliderValues[index];
+      if (valueEl) valueEl.textContent = displayValue;
+    }
+  });
+}
+
+function syncBuzzerInputs(theme) {
+  if (!theme) return;
+
+  // Buzzer color inputs
+  els.buzzerColorInputs.forEach(input => {
+    if (theme[input.dataset.token]) {
+      input.value = theme[input.dataset.token];
+    }
+  });
+
+  // Buzzer select inputs
+  els.buzzerSelectInputs.forEach(select => {
+    if (theme[select.dataset.token]) {
+      select.value = theme[select.dataset.token];
+    }
+  });
+
+  // Buzzer slider inputs
+  els.buzzerSliderInputs.forEach((slider, index) => {
+    const token = slider.dataset.token;
+    const valueEl = els.buzzerSliderValues[index];
+    if (theme[token]) {
+      let value = theme[token];
+      // Parse different formats
+      if (token.includes('volume')) {
+        value = parseFloat(value) || 0.7;
+      } else if (token.includes('duration') || token.includes('cooldown') || token.includes('debounce')) {
+        value = parseInt(value) || 5000;
+      } else if (token.includes('gpio') || token.includes('debounce')) {
+        value = parseInt(value) || 17;
+      }
+      slider.value = value;
+      // Update display
+      let displayValue = value;
+      if (token.includes('volume')) displayValue = parseFloat(value).toFixed(2);
+      else if (token.includes('duration') || token.includes('cooldown') || token.includes('debounce')) displayValue = `${value}ms`;
+      else if (token.includes('gpio')) displayValue = `${value}`;
+      const valueEl = els.buzzerSliderValues[index];
+      if (valueEl) valueEl.textContent = displayValue;
     }
   });
 }
